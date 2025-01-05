@@ -5432,11 +5432,26 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   data: function data() {
     return {
+      showModal: false,
+      // Controls modal visibility
       files: [],
       // Array to hold file data
       edit: false,
@@ -5455,6 +5470,12 @@ __webpack_require__.r(__webpack_exports__);
     this.fetchFiles();
   },
   methods: {
+    openModal: function openModal() {
+      this.showModal = true;
+    },
+    closeModal: function closeModal() {
+      this.showModal = false;
+    },
     // Check if token exists
     checkToken: function checkToken() {
       this.token = localStorage.getItem("token");
@@ -5504,7 +5525,12 @@ __webpack_require__.r(__webpack_exports__);
 
         _this2.resetFileData();
 
-        $("#fileModal").modal("hide");
+        _this2.closeModal(); // Close the modal after success
+
+
+        _this2.fetchFiles(); // Fetch the latest files after adding
+
+
         sweetalert2__WEBPACK_IMPORTED_MODULE_1___default().fire("Success", "File added successfully", "success");
       })["catch"](function (error) {
         _this2.errors = error.response.data.errors || [];
@@ -5535,7 +5561,12 @@ __webpack_require__.r(__webpack_exports__);
 
         _this3.resetFileData();
 
-        $("#fileModal").modal("hide");
+        _this3.closeModal(); // Close the modal after success
+
+
+        _this3.fetchFiles(); // Fetch the latest files after updating
+
+
         sweetalert2__WEBPACK_IMPORTED_MODULE_1___default().fire("Success", "File updated successfully", "success");
       })["catch"](function (error) {
         _this3.errors = error.response.data.errors || [];
@@ -5563,6 +5594,10 @@ __webpack_require__.r(__webpack_exports__);
             _this4.files = _this4.files.filter(function (file) {
               return file.id !== id;
             });
+
+            _this4.fetchFiles(); // Fetch the latest files after deleting
+
+
             sweetalert2__WEBPACK_IMPORTED_MODULE_1___default().fire("Deleted!", "Your file has been deleted.", "success");
           });
         }

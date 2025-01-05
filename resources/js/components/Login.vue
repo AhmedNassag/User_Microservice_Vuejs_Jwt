@@ -8,47 +8,47 @@
 </template>
 
 <script>
-export default {
-    data()
-    {
-        return {
-            user:
-            {
-                email:'',
-                password:''
-            },
-            error:false,
-            token:null
-        }
-    },
-    created()
-    {
-        this.checkToken();
-    },
-    methods:
-    {
-        checkToken() {
-            this.token = localStorage.getItem('token'); // Dynamically fetch token
-        },
-        login()
+    export default {
+        data()
         {
-            axios.post('api/login',this.user).then(response=>
+            return {
+                user:
+                {
+                    email:'',
+                    password:''
+                },
+                error:false,
+                token:null
+            }
+        },
+        created()
+        {
+            this.checkToken();
+        },
+        methods:
+        {
+            checkToken() {
+                this.token = localStorage.getItem('token'); // Dynamically fetch token
+            },
+            login()
             {
-                if(response.data.status=='success')
+                axios.post('api/login',this.user).then(response=>
                 {
-                    let token = response.data.token
-                    let user = response.data.user
-                    localStorage.setItem('token',token)
-                    localStorage.setItem('user', JSON.stringify(user));
-                    this.error = false
-                    this.$router.push({name:'File'})
-                }
-                else
-                {
-                    this.error = true
-                }
-            })
+                    if(response.data.status=='success')
+                    {
+                        let token = response.data.token
+                        let user = response.data.user
+                        localStorage.setItem('token',token)
+                        localStorage.setItem('user', JSON.stringify(user));
+                        this.error = false
+                        this.$router.push({name:'File'})
+                    }
+                    else
+                    {
+                        this.error = true
+                    }
+                })
+            }
         }
     }
-}
 </script>

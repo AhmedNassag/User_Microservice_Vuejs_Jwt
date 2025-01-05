@@ -9,36 +9,36 @@
 </template>
 
 <script>
-export default
-{
-    data()
+    export default
     {
-        return {
-            user:
-            {
-                name:'',
-                email:'',
-                password:''
-            },
-            error: false
-        }
-    },
-    methods:
-    {
-        register()
+        data()
         {
-            axios.post('api/register',this.user).then(response=>
+            return {
+                user:
+                {
+                    name:'',
+                    email:'',
+                    password:''
+                },
+                error: false
+            }
+        },
+        methods:
+        {
+            register()
             {
-                if(response.data.status=='error')
+                axios.post('api/register',this.user).then(response=>
                 {
-                    this.error = true
-                }
-                else
-                {
-                    this.$router.push({name:'File'})
-                }
-            })
+                    if(response.data.status=='error')
+                    {
+                        this.error = true
+                    }
+                    else
+                    {
+                        this.$router.push({name:'File'})
+                    }
+                })
+            }
         }
     }
-}
 </script>
