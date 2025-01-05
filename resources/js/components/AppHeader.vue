@@ -19,11 +19,15 @@
         created()
         {
             this.checkToken();
+            EventBus.$on('auth-updated', this.updateToken); // Listen for auth-updated events from EventBus (to hide Register & Login Buttons and appear Files & Logout Buttons after make login / to appear Register & Login Buttons and hide Files & Logout Buttons after make logout)
         },
         methods:
         {
             checkToken() {
                 this.token = localStorage.getItem('token'); // Dynamically fetch token
+            },
+            updateToken(newToken) {
+                this.token = newToken; // Update the token state
             },
             logout()
             {
@@ -37,14 +41,13 @@
                     localStorage.removeItem('user'); // Clear the user
                     this.token = null; // Update local data
                     this.user = null; // Update local data
+                    this.updateToken(null); // Clear the token
                     this.$router.push({ name: 'Login' }); // Redirect to login
                 });
-            }
+            },
+            beforeDestroy() {
+                EventBus.$off('auth-updated', this.updateToken); // Clean up event listener to avoid memory leaks (to hide Register & Login Buttons and appear Files & Logout Buttons after make login / to appear Register & Login Buttons and hide Files & Logout Buttons after make logout)
+            },
         },
-        watch: {
-            token() {
-                // Watcher to trigger UI updates if needed
-            }
-        }
     };
 </script>

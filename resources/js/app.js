@@ -19,7 +19,7 @@ const Toast = Swal.mixin({
     }
   })
 window.Toast = Toast
-
+window.EventBus = new Vue(); // Add an event bus for global state (to hide Register & Login Buttons and appear Files & Logout Buttons after make login / to appear Register & Login Buttons and hide Files & Logout Buttons after make logout)
 const router = new VueRouter({
     mode:'history',
     routes

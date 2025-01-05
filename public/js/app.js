@@ -5283,10 +5283,14 @@ __webpack_require__.r(__webpack_exports__);
   },
   created: function created() {
     this.checkToken();
+    EventBus.$on('auth-updated', this.updateToken); // Listen for auth-updated events from EventBus (to hide Register & Login Buttons and appear Files & Logout Buttons after make login / to appear Register & Login Buttons and hide Files & Logout Buttons after make logout)
   },
   methods: {
     checkToken: function checkToken() {
       this.token = localStorage.getItem('token'); // Dynamically fetch token
+    },
+    updateToken: function updateToken(newToken) {
+      this.token = newToken; // Update the token state
     },
     logout: function logout() {
       var _this = this;
@@ -5304,15 +5308,17 @@ __webpack_require__.r(__webpack_exports__);
 
         _this.user = null; // Update local data
 
+        _this.updateToken(null); // Clear the token
+
+
         _this.$router.push({
           name: 'Login'
         }); // Redirect to login
 
       });
-    }
-  },
-  watch: {
-    token: function token() {// Watcher to trigger UI updates if needed
+    },
+    beforeDestroy: function beforeDestroy() {
+      EventBus.$off('auth-updated', this.updateToken); // Clean up event listener to avoid memory leaks (to hide Register & Login Buttons and appear Files & Logout Buttons after make login / to appear Register & Login Buttons and hide Files & Logout Buttons after make logout)
     }
   }
 });
@@ -5665,6 +5671,7 @@ __webpack_require__.r(__webpack_exports__);
           localStorage.setItem('token', token);
           localStorage.setItem('user', JSON.stringify(user));
           _this.error = false;
+          EventBus.$emit('auth-updated', token); // Emit auth-updated event via EventBus (to hide Register & Login Buttons and appear Files & Logout Buttons after make login / to appear Register & Login Buttons and hide Files & Logout Buttons after make logout)
 
           _this.$router.push({
             name: 'File'
@@ -5766,6 +5773,8 @@ var Toast = sweetalert2__WEBPACK_IMPORTED_MODULE_4___default().mixin({
   }
 });
 window.Toast = Toast;
+window.EventBus = new vue__WEBPACK_IMPORTED_MODULE_0__["default"](); // Add an event bus for global state (to hide Register & Login Buttons and appear Files & Logout Buttons after make login / to appear Register & Login Buttons and hide Files & Logout Buttons after make logout)
+
 var router = new vue_router__WEBPACK_IMPORTED_MODULE_1__["default"]({
   mode: 'history',
   routes: _routes__WEBPACK_IMPORTED_MODULE_3__["default"]
