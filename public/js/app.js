@@ -5491,7 +5491,7 @@ __webpack_require__.r(__webpack_exports__);
       var _this = this;
 
       var user = JSON.parse(localStorage.getItem("user"));
-      axios__WEBPACK_IMPORTED_MODULE_0___default().get("http://127.0.0.1:8001/api/files?mediable_type=User&mediable_id=" + user.id, {
+      axios__WEBPACK_IMPORTED_MODULE_0___default().get("http://127.0.0.1:8001/api/files?mediable_type=User&mediable_id=" + user._id, {
         headers: {
           Authorization: "Bearer ".concat(this.token)
         }
@@ -5514,8 +5514,8 @@ __webpack_require__.r(__webpack_exports__);
 
       var user = JSON.parse(localStorage.getItem("user"));
 
-      if (user && user.id) {
-        formData.append("mediable_id", user.id);
+      if (user && user._id) {
+        formData.append("mediable_id", user._id);
       } else {
         sweetalert2__WEBPACK_IMPORTED_MODULE_1___default().fire("Error", "User is not authenticated", "error");
         return;
@@ -5552,7 +5552,17 @@ __webpack_require__.r(__webpack_exports__);
       var _this3 = this;
 
       var formData = new FormData();
-      formData.append("file", this.fileData.file);
+      formData.append("file", this.fileData.file); // Add user_id dynamically from localStorage
+
+      var user = JSON.parse(localStorage.getItem("user"));
+
+      if (user && user._id) {
+        formData.append("mediable_id", user._id);
+      } else {
+        sweetalert2__WEBPACK_IMPORTED_MODULE_1___default().fire("Error", "User is not authenticated", "error");
+        return;
+      }
+
       axios__WEBPACK_IMPORTED_MODULE_0___default().post("http://127.0.0.1:8001/api/files/".concat(this.fileData.id), formData, {
         headers: {
           Authorization: "Bearer ".concat(this.token),

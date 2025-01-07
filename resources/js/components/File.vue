@@ -146,7 +146,7 @@
             fetchFiles() {
                 let user = JSON.parse(localStorage.getItem("user"));
                 axios
-                    .get("http://127.0.0.1:8001/api/files?mediable_type=User&mediable_id="+user.id, {
+                    .get(`http://127.0.0.1:8001/api/files?mediable_type=User&mediable_id=`+user._id, {
                         headers: { Authorization: `Bearer ${this.token}` },
                     })
                     .then((response) => {
@@ -165,15 +165,15 @@
 
                 // Add user_id dynamically from localStorage
                 const user = JSON.parse(localStorage.getItem("user"));
-                if (user && user.id) {
-                    formData.append("mediable_id", user.id);
+                if (user && user._id) {
+                    formData.append("mediable_id", user._id);
                 } else {
                     Swal.fire("Error", "User is not authenticated", "error");
                     return;
                 }
 
                 axios
-                    .post("http://127.0.0.1:8001/api/files", formData, {
+                    .post(`http://127.0.0.1:8001/api/files`, formData, {
                         headers: {
                             Authorization: `Bearer ${this.token}`,
                             "Content-Type": "multipart/form-data",
@@ -199,6 +199,15 @@
             updateFile() {
                 const formData = new FormData();
                 formData.append("file", this.fileData.file);
+
+                // Add user_id dynamically from localStorage
+                const user = JSON.parse(localStorage.getItem("user"));
+                if (user && user._id) {
+                    formData.append("mediable_id", user._id);
+                } else {
+                    Swal.fire("Error", "User is not authenticated", "error");
+                    return;
+                }
 
                 axios
                     .post(`http://127.0.0.1:8001/api/files/${this.fileData.id}`, formData, {

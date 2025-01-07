@@ -37,7 +37,7 @@
                     if(response.data.status=='success')
                     {
                         let token = response.data.token
-                        let user = response.data.user
+                        let user  = response.data.user
                         localStorage.setItem('token',token)
                         localStorage.setItem('user', JSON.stringify(user));
                         this.error = false

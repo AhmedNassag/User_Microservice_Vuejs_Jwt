@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Illuminate\Http\Request;
+use Tymon\JWTAuth\Facades\JWTAuth;
 use Illuminate\Support\Facades\Validator;
 
 class UserController extends Controller
@@ -36,10 +37,15 @@ class UserController extends Controller
         if($token = auth()->attempt($credentials))
         {
             $user = auth()->user();
+            // Custom claims for roles/permissions
+            /*$token = JWTAuth::fromUser($user, [
+                'roles'       => $user->roles,
+                'permissions' => $user->permissions,
+            ]);*/
             return response()->json([
                 'status' => 'success',
-                'token' => $token,
-                'user' => $user
+                'token'  => $token,
+                'user'   => $user
             ]);
         }
         return response()->json(['status'=>'error']);
