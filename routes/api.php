@@ -1,8 +1,9 @@
 <?php
 
-use App\Http\Controllers\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UserController;
+use App\Http\Controllers\RoleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,7 +23,14 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 
 
-Route::middleware('auth:api')->group(function () {
+Route::group(['middleware' => ['auth:api']], function () {
+
+    //roles
+    Route::resource('roles', RoleController::class);
+
+    //users
+    Route::resource('users', UserController::class);
+
     Route::post('logout',[UserController::class, 'logout']);
 });
 

@@ -8,11 +8,13 @@ use Tymon\JWTAuth\Contracts\JWTSubject;
 // use Illuminate\Foundation\Auth\User as Authenticatable;
 // use MongoDB\Laravel\Auth\User as Authenticatable;
 use Jenssegers\Mongodb\Auth\User as Authenticatable;
+use Spatie\Permission\Traits\HasRoles;
 
 
 class User extends Authenticatable implements JWTSubject
 {
     use Notifiable;
+    use HasRoles;
 
 
     /**
