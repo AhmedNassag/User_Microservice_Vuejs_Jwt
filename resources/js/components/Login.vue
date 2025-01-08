@@ -36,13 +36,19 @@
                 {
                     if(response.data.status=='success')
                     {
-                        let token = response.data.token
-                        let user  = response.data.user
-                        localStorage.setItem('token',token)
+                        let token       = response.data.token;
+                        let user        = response.data.user;
+                        let roles       = response.data.roles;
+                        let permissions = response.data.permissions;
+                        localStorage.setItem('token',token);
                         localStorage.setItem('user', JSON.stringify(user));
+                        localStorage.setItem('roles', JSON.stringify(roles));
+                        localStorage.setItem('permissions', JSON.stringify(permissions));
                         this.error = false
                         EventBus.$emit('auth-updated', token); // Emit auth-updated event via EventBus (to hide Register & Login Buttons and appear Files & Logout Buttons after make login / to appear Register & Login Buttons and hide Files & Logout Buttons after make logout)
-                        this.$router.push({name:'File'})
+                        this.$router.push({
+                            name:'File',
+                        });
                     }
                     else
                     {

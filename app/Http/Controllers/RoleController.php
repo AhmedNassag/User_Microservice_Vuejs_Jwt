@@ -2,17 +2,24 @@
 
 namespace App\Http\Controllers;
 
-use DB;
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
-use Spatie\Permission\Models\Role;
-use Spatie\Permission\Models\Permission;
-use Illuminate\Support\Facades\Validator;
+use App\Traits\ApiResponseTrait;
+use App\Resources\Role\RoleResource;
+use App\Repositories\Role\RoleInterface;
+use App\Http\Requests\Role\StoreRequest;
+use App\Http\Requests\Role\UpdateRequest;
+use App\Http\Requests\Role\StorePermissionRequest;
 
 class RoleController extends Controller
 {
-    function __construct()
+    use ApiResponseTrait;
+
+    protected $role;
+
+    function __construct(RoleInterface $role)
     {
+        $this->role = $role;
+
         // $this->middleware('permission:read-role', ['only' => ['index']]);
         // $this->middleware('permission:show-role', ['only' => ['index']]);
         // $this->middleware('permission:create-role', ['only' => ['create','store']]);
@@ -22,71 +29,57 @@ class RoleController extends Controller
 
 
 
+    // Fetch data
     public function index(Request $request)
     {
-        $data = Role::orderBy('id','DESC')
-        ->when($request->name != null,function ($q) use($request){
-            return $q->where('name','like','%'.$request->name.'%');
-        })
-        ->paginate(10);
-        /*return view('dashboard.roles.index')
-        ->with([
-            'data'   => $data,
-            'name'   => $request->name,
-        ]);*/
-        return response()->json(['status'=>'success','data'=>$data]);
-    }
-
-
-
-    public function create()
-    {
-        $permission = Permission::get();
-        return view('roles.create',compact('permission'));
-    }
-
-
-
-    public function store(Request $request)
-    {
-        try{
-            $validator = Validator::make($request->all(),[
-                'name'       => 'required|unique:roles,name',
-                'permission' => 'required',
-            ]);
-            if($validator->fails())
-            {
-                return response()->json(['status'=>'error','errors'=>$validator->errors()]);
-            }
-            $data = Role::create(['name' => $request->input('name')]);
-            $data->syncPermissions($request->input('permission'));
-            // session()->flash('success');
-            // return redirect()->route('roles.index');
-            return response()->json(['status'=>200,'data'=>$data]);
+        try {
+            $data = $this->role->index($request);
+            // return $this->apiResponse(RoleResource::collection($data), 'Data Returned Successfully', 200);
+            return $this->apiResponse($data, 'Data Returned Successfully', 200);
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors(['error' => $e->getMessage()]);
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 
 
 
+    // Show an existing data
     public function show($id)
     {
-        $role            = Role::find($id);
-        $rolePermissions = Permission::join("role_has_permissions","role_has_permissions.permission_id","=","permissions.id")
-            ->where("role_has_permissions.role_id",$id)
-            ->get();
-
-        $data = [];
-        $data['role'] = $role;
-        $data['rolePermissions'] = $rolePermissions;
-        // return view('roles.show',compact('role','rolePermissions'));
-        return response()->json(['status'=>'success','data'=>$data]);
+        try {
+            $data = $this->role->show($id);
+            // return $this->apiResponse(new RoleResource($data), 'Data Returned Successfully', 200);
+            return $this->apiResponse($data, 'Data Returned Successfully', 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
 
 
-    public function edit($id)
+    /*public function create()
+    {
+        $permission = Permission::get();
+        return view('roles.create',compact('permission'));
+    }*/
+
+
+
+    // Store a new data
+    public function store(StoreRequest $request)
+    {
+        try {
+            $data = $this->role->store($request);
+            // return $this->apiResponse(new RoleResource($data), 'Data Stored Successfully', 200);
+            return $this->apiResponse($data, 'Data Stored Successfully', 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+
+
+    /*public function edit($id)
     {
         $role            = Role::find($id);
         $permission      = Permission::get();
@@ -95,30 +88,40 @@ class RoleController extends Controller
             ->pluck('role_has_permissions.permission_id','role_has_permissions.permission_id')
             ->all();
         return view('roles.edit',compact('role','permission','rolePermissions'));
-    }
+    }*/
 
 
 
-    public function update(Request $request, $id)
+    // Update an existing data
+    public function update(UpdateRequest $request, $id)
     {
-        $this->validate($request, [
-            'name'       => 'required',
-            'permission' => 'required',
-        ]);
-        $data = Role::find($id);
-        $data->name = $request->input('name');
-        $data->save();
-        $data->syncPermissions($request->input('permission'));
-        // return redirect()->route('roles.index')->with('success','Role updated successfully');
-        return response()->json(['status'=>'success','data'=>$data]);
+        try {
+            $data = $this->role->update($request, $id);
+            // return $this->apiResponse(new RoleResource($data), 'Data Updated Successfully', 200);
+            return $this->apiResponse($data, 'Data Updated Successfully', 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
 
 
+    // Delete a data
     public function destroy($id)
     {
-        DB::table("roles")->where('id',$id)->delete();
-        // return redirect()->route('roles.index')->with('success','Role deleted successfully');
-        return response()->json(['status'=>'success','data'=> 'Role deleted successfully']);
+        try {
+            $data = $this->role->destroy($id);
+            return $this->apiResponse(null,'Data Deleted Sucessfully',200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+
+
+    // Store a new data
+    public function storePermission(StorePermissionRequest $request)
+    {
+        $data = $this->role->storePermission($request);
     }
 }

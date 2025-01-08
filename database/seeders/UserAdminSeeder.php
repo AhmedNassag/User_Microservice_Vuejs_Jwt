@@ -23,8 +23,8 @@ class UserAdminSeeder extends Seeder
             'roles_name' => ["Admin"],
         ]);
         $role        = Role::create(['name' => 'Admin']);
-        $permissions = Permission::pluck('id','id')->all();
+        $permissions = Permission::pluck('name','name')->all();
         $role->syncPermissions($permissions);
-        $user->assignRole([$role->id]);
+        $user->assignRole($role->name);
     }
 }

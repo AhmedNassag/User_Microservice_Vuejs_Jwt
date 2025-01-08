@@ -23,16 +23,17 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
 
 
 
-Route::group(['middleware' => ['auth:api']], function () {
+// Route::group(['middleware' => 'JwtMiddleware'],function() {
 
     //roles
     Route::resource('roles', RoleController::class);
+    Route::post('storePermission', [RoleController::class, 'storePermission']);
 
     //users
     Route::resource('users', UserController::class);
 
     Route::post('logout',[UserController::class, 'logout']);
-});
+// });
 
 
 Route::post('register',[UserController::class, 'register']);

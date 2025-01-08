@@ -39,16 +39,16 @@ class UserController extends Controller
         $credentials = request(['email','password']);
         if($token = auth()->attempt($credentials))
         {
-            $user = auth()->user();
-            // Custom claims for roles/permissions
-            /*$token = JWTAuth::fromUser($user, [
-                'roles'       => $user->roles,
-                'permissions' => $user->permissions,
-            ]);*/
+            $user        = auth()->user();
+            $roles       = $user->roles->pluck('name'); // Retrieve role names
+            $permissions = $user->getAllPermissions()->pluck('name'); // Retrieve permission names
+            
             return response()->json([
-                'status' => 'success',
-                'token'  => $token,
-                'user'   => $user
+                'status'      => 'success',
+                'token'       => $token,
+                'user'        => $user,
+                'roles'       => $roles,
+                'permissions' => $permissions,
             ]);
         }
         return response()->json(['status'=>'error']);

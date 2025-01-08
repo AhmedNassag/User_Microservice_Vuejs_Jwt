@@ -1,6 +1,8 @@
 <template>
     <div class="text-center">
         <router-link v-if="token" to="/" class="btn btn-primary m-1">Files</router-link>
+        <router-link v-if="token" to="/roles" class="btn btn-primary m-1">Roles</router-link>
+        <router-link v-if="token" to="/users" class="btn btn-primary m-1">Users</router-link>
         <router-link v-else to="/register" class="btn btn-primary m-1">Register</router-link>
         <button v-if="token" class="btn btn-primary m-1" @click="logout">Logout</button>
         <router-link v-else to="/login" class="btn btn-primary m-1">Login</router-link>
@@ -32,7 +34,7 @@
             logout()
             {
                 let token = localStorage.getItem('token')
-                let user = localStorage.getItem('user')
+                let user  = localStorage.getItem('user')
                 if (!token) return;
                 axios.post('api/logout?token='+token).then(response=>
                 {
