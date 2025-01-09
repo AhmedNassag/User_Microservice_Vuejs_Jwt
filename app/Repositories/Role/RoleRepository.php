@@ -26,7 +26,7 @@ class RoleRepository implements RoleInterface
             // ->paginate(10);
             ->get();
 
-        $permissions = Permission::get();
+        $permissions = Permission::pluck('name','name')->all();
 
         $data['roles']       = $roles;
         $data['permissions'] = $permissions;
@@ -57,9 +57,9 @@ class RoleRepository implements RoleInterface
     public function store($request)
     {
         $data        = $this->getModel()->create(['name' => $request->input('name')]);
-        $permissions = Permission::whereIn('_id', $request->input('permissions'))->pluck('name');
+        // $permissions = Permission::whereIn('name', $request->input('permissions'))->pluck('name');
+        $permissions = $request->input('permissions');
         $data->syncPermissions($permissions);
-
         return $data;
     }
 
@@ -71,7 +71,8 @@ class RoleRepository implements RoleInterface
         $data = $this->getModel()->findOrFail($id);
         $data->update(['name' => $request->input('name')]);
         $data->save();
-        $permissions = Permission::whereIn('_id', $request->input('permissions'))->pluck('name');
+        // $permissions = Permission::whereIn('name', $request->input('permissions'))->pluck('name');
+        $permissions = $request->input('permissions');
         $data->syncPermissions($permissions);
 
         return $data;

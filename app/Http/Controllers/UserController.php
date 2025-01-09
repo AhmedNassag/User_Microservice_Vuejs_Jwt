@@ -4,14 +4,39 @@ namespace App\Http\Controllers;
 
 use DB;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
+
+
+use Illuminate\Http\Request;
+use App\Traits\ApiResponseTrait;
+use App\Resources\User\UserResource;
+use App\Repositories\User\UserInterface;
+use App\Http\Requests\User\StoreRequest;
+use App\Http\Requests\User\UpdateRequest;
+
 class UserController extends Controller
 {
+    use ApiResponseTrait;
+
+    protected $user;
+
+    function __construct(UserInterface $user)
+    {
+        $this->user = $user;
+
+        // $this->middleware('permission:read-user', ['only' => ['index']]);
+        // $this->middleware('permission:show-user', ['only' => ['index']]);
+        // $this->middleware('permission:create-user', ['only' => ['create','store']]);
+        // $this->middleware('permission:update-user', ['only' => ['edit','update']]);
+        // $this->middleware('permission:delete-user', ['only' => ['destroy']]);
+    }
+
+
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(),
@@ -39,16 +64,12 @@ class UserController extends Controller
         $credentials = request(['email','password']);
         if($token = auth()->attempt($credentials))
         {
-            $user        = auth()->user();
-            $roles       = $user->roles->pluck('name'); // Retrieve role names
-            $permissions = $user->getAllPermissions()->pluck('name'); // Retrieve permission names
-            
+            $user = auth()->user();
+
             return response()->json([
-                'status'      => 'success',
-                'token'       => $token,
-                'user'        => $user,
-                'roles'       => $roles,
-                'permissions' => $permissions,
+                'status' => 'success',
+                'token'  => $token,
+                'user'   => $user,
             ]);
         }
         return response()->json(['status'=>'error']);
@@ -70,122 +91,71 @@ class UserController extends Controller
 
 
 
+
+    // Fetch data
     public function index(Request $request)
     {
-        $data = User::orderBy('id','DESC')->paginate(5);
-        return view('users.show_users',compact('data'))->with('i', ($request->input('page', 1) - 1) * 5);
+        try {
+            $data = $this->user->index($request);
+            // return $this->apiResponse(UserResource::collection($data), 'Data Returned Successfully', 200);
+            return $this->apiResponse($data, 'Data Returned Successfully', 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
 
 
-    /**
-    * Show the form for creating a new resource.
-    *
-    * @return \Illuminate\Http\Response
-    */
-    public function create()
-    {
-        $roles = Role::pluck('name','name')->all();
-        return view('users.index',compact('roles'));
-    }
-
-
-
-    /**
-    * Store a newly created resource in storage.
-    *
-    * @param  \Illuminate\Http\Request  $request
-    * @return \Illuminate\Http\Response
-    */
-    public function store(Request $request)
-    {
-        $this->validate($request, [
-            'name'       => 'required',
-            'email'      => 'required|email|unique:users,email',
-            'password'   => 'required|same:confirm-password',
-            'roles_name' => 'required'
-        ]);
-        $input = $request->all();
-        $input['password'] = bcrypt($input['password']);
-        $user = User::create($input);
-        $user->assignRole($request->input('roles_name'));
-        return redirect()->route('users.index')->with('success','تم اضافة المستخدم بنجاح');
-    }
-
-
-
-    /**
-    * Display the specified resource.
-    *
-    * @param  int  $id
-    * @return \Illuminate\Http\Response
-    */
+    // Show an existing data
     public function show($id)
     {
-        $user = User::find($id);
-        return view('users.show',compact('user'));
-    }
-
-
-
-    /**
-    * Show the form for editing the specified resource.
-    *
-    * @param  int  $id
-    * @return \Illuminate\Http\Response
-    */
-    public function edit($id)
-    {
-        $user     = User::find($id);
-        $roles    = Role::pluck('name','name')->all();
-        $userRole = $user->roles->pluck('name','name')->all();
-        return view('users.edit',compact('user','roles','userRole'));
-    }
-
-
-
-    /**
-    * Update the specified resource in storage.
-    *
-    * @param  \Illuminate\Http\Request  $request
-    * @param  int  $id
-    * @return \Illuminate\Http\Response
-    */
-    public function update(Request $request, $id)
-    {
-        $this->validate($request, [
-            'name'     => 'required',
-            'email'    => 'required|email|unique:users,email,'.$id,
-            'password' => 'same:confirm-password',
-            'roles'    => 'required'
-        ]);
-        $input = $request->all();
-        if(!empty($input['password']))
-        {
-            $input['password'] = bcrypt($input['password']);
+        try {
+            $data = $this->user->show($id);
+            // return $this->apiResponse(new UserResource($data), 'Data Returned Successfully', 200);
+            return $this->apiResponse($data, 'Data Returned Successfully', 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-        else
-        {
-            $input = array_except($input,array('password'));
-        }
-        $user = User::find($id);
-        $user->update($input);
-        DB::table('model_has_roles')->where('model_id',$id)->delete();
-        $user->assignRole($request->input('roles'));
-        return redirect()->route('users.index')->with('success','تم تحديث معلومات المستخدم بنجاح');
     }
 
 
 
-    /**
-    * Remove the specified resource from storage.
-    *
-    * @param  int  $id
-    * @return \Illuminate\Http\Response
-    */
-    public function destroy(Request $request)
+    // Store a new data
+    public function store(StoreRequest $request)
     {
-        User::find($request->user_id)->delete();
-        return redirect()->route('users.index')->with('success','تم حذف المستخدم بنجاح');
+        try {
+            $data = $this->user->store($request);
+            // return $this->apiResponse(new UserResource($data), 'Data Stored Successfully', 200);
+            return $this->apiResponse($data, 'Data Stored Successfully', 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+
+
+    // Update an existing data
+    public function update(UpdateRequest $request, $id)
+    {
+        try {
+            $data = $this->user->update($request, $id);
+            // return $this->apiResponse(new UserResource($data), 'Data Updated Successfully', 200);
+            return $this->apiResponse($data, 'Data Updated Successfully', 200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+
+
+    // Delete a data
+    public function destroy($id)
+    {
+        try {
+            $data = $this->user->destroy($id);
+            return $this->apiResponse(null,'Data Deleted Sucessfully',200);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 }

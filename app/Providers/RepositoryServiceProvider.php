@@ -18,6 +18,12 @@ class RepositoryServiceProvider extends ServiceProvider
             'App\Repositories\Role\RoleInterface',
             'App\Repositories\Role\RoleRepository',
         );
+        
+        //User
+        $this->app->bind(
+            'App\Repositories\User\UserInterface',
+            'App\Repositories\User\UserRepository',
+        );
 
     }
 

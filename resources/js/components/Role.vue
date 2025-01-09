@@ -38,7 +38,7 @@
                             >
                                 <div class="card flex-fill">
                                     <div class="card-body p-3 text-center">
-                                        <p class="card-text f-12">{{ permission.name }}</p>
+                                        <p class="card-text f-12">{{ permission }}</p>
                                     </div>
                                     <div class="card-footer p-3 text-center">
                                         <label class="form-group toggle-switch mb-0">
@@ -46,7 +46,7 @@
                                                 type="checkbox"
                                                 class="toggle-switch-input"
                                                 v-model="roleData.permissions"
-                                                :value="permission._id"
+                                                :value="permission"
                                             />
                                             <span class="toggle-switch-label mx-auto">
                                                 <span class="toggle-switch-indicator"></span>
@@ -166,7 +166,7 @@
                         this.resetRoleData();
                         this.closeModal();
                         this.fetchRoles();
-                        Swal.fire("Success", "File added successfully", "success");
+                        Swal.fire("Success", "Role added successfully", "success");
                     })
                     .catch((error) => {
                         this.errors = error.response.data.errors || [];
@@ -177,7 +177,8 @@
                 this.roleData.id   = role._id;
                 this.roleData.name = role.name;
                 // this.roleData.permissions = role.permissions || [];
-                this.roleData.permissions = role.permissions.map((perm) => perm.name) || []; // Assuming permissions are objects
+                // this.roleData.permissions = role.permissions.map((perm) => perm.name) || []; // Assuming permissions are objects
+                this.roleData.permissions = (role.permissions || []).map((perm) => perm.name);
                 this.edit          = true;
                 this.fetchPermissions(); // Fetch permissions when editing
             },
@@ -202,7 +203,7 @@
                         this.resetRoleData();
                         this.closeModal();
                         this.fetchRoles();
-                        Swal.fire("Success", "File updated successfully", "success");
+                        Swal.fire("Success", "Role updated successfully", "success");
                     })
                     .catch((error) => {
                         this.errors = error.response.data.errors || [];
@@ -241,6 +242,7 @@
                 };
                 this.edit   = false;
                 this.errors = [];
+                $('#roleModal').modal('hide');
             },
         },
     };

@@ -12,7 +12,7 @@ class RoleResource extends JsonResource
     public function toArray($request): array
     {
         return [
-            'id'               => $this->id ?? null,
+            'id'               => $this->_id ?? null,
             'name'             => $this->name ?? null,
             'guard_name'       => $this->guard_name ?? null,
             'permission_ids'   => $this->permissions->pluck('id') ?? null,
