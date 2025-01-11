@@ -57,16 +57,16 @@ class User extends Authenticatable implements JWTSubject
     public function getJWTCustomClaims()
     {
         $roles       = $this->userRoles(); // Retrieve role names
-        $permissions = $this->role(); // Retrieve permission names
+        $permissions = $this->userPermissions(); // Retrieve permission names
 
         return [
-            'user' => [
+            /*'user' => [
                 'id'    => $this->id,
                 'name'  => $this->name,
                 'email' => $this->email,
-            ],
-            'roles'       => $roles, // The roles will be returned as an array of names
-            'permissions' => $permissions, // The permissions will be returned as an array of names
+            ],*/
+            'roles'       => $roles->pluck('name'), // The roles will be returned as an array of names
+            'permissions' => $permissions->pluck('name'), // The permissions will be returned as an array of names
         ];
     }
 
@@ -74,12 +74,11 @@ class User extends Authenticatable implements JWTSubject
     // Define the user_roles relationship
     public function userRoles()
     {
-        // Since the role_id is an array, we assume the role data is being referenced by role_id
-        // This fetches roles based on the role_id array in the User model
-        return $this->belongsToMany(Role::class,
-            'id',        // Foreign key on the pivot table for this model
-            'role_id'          // Foreign key for the Role model
-        );
+        $role_ids = \DB::table('model_has_roles')->where('model_id', $this->id)->where('model_type', 'App\Models\User')->pluck('role_id')->all();
+        $roles    = \DB::table('roles')->whereIn('_id', $role_ids)->get();
+
+        return $roles;
+        // return ['Admin'];
     }
 
 
@@ -87,7 +86,19 @@ class User extends Authenticatable implements JWTSubject
     // Define the userPermissions relationship
     public function userPermissions()
     {
-        // Get all permissions linked to the user's roles
-        return $this->userRoles()->with('permissions'); // Assuming you have a 'permissions' relation in the Role model
+        $roles         = $this->userRoles();
+        $permissionIds = [];
+        foreach ($roles as $role)
+        {
+            if (isset($role['permission_id']))
+            {
+                $permissionIds = array_merge($permissionIds, $role['permission_id']);
+            }
+        }
+        $permissionIds = array_unique($permissionIds);
+        $permissions   = \DB::table('permissions')->whereIn('_id', $permissionIds)->get();
+
+        return $permissions;
+        // return ['read-files','show-files','create-files','update-files','delete-files'];
     }
 }
