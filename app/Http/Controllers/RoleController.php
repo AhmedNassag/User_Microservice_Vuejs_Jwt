@@ -21,9 +21,9 @@ class RoleController extends Controller
         $this->role = $role;
 
         // $this->middleware('permission:read-role', ['only' => ['index']]);
-        // $this->middleware('permission:show-role', ['only' => ['index']]);
-        // $this->middleware('permission:create-role', ['only' => ['create','store']]);
-        // $this->middleware('permission:update-role', ['only' => ['edit','update']]);
+        // $this->middleware('permission:show-role', ['only' => ['show']]);
+        // $this->middleware('permission:create-role', ['only' => ['store']]);
+        // $this->middleware('permission:update-role', ['only' => ['update']]);
         // $this->middleware('permission:delete-role', ['only' => ['destroy']]);
     }
 
@@ -57,14 +57,6 @@ class RoleController extends Controller
 
 
 
-    /*public function create()
-    {
-        $permission = Permission::get();
-        return view('roles.create',compact('permission'));
-    }*/
-
-
-
     // Store a new data
     public function store(StoreRequest $request)
     {
@@ -76,19 +68,6 @@ class RoleController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-
-
-
-    /*public function edit($id)
-    {
-        $role            = Role::find($id);
-        $permission      = Permission::get();
-        $rolePermissions = DB::table("role_has_permissions")
-            ->where("role_has_permissions.role_id",$id)
-            ->pluck('role_has_permissions.permission_id','role_has_permissions.permission_id')
-            ->all();
-        return view('roles.edit',compact('role','permission','rolePermissions'));
-    }*/
 
 
 

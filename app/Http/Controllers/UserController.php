@@ -29,9 +29,9 @@ class UserController extends Controller
         $this->user = $user;
 
         // $this->middleware('permission:read-user', ['only' => ['index']]);
-        // $this->middleware('permission:show-user', ['only' => ['index']]);
-        // $this->middleware('permission:create-user', ['only' => ['create','store']]);
-        // $this->middleware('permission:update-user', ['only' => ['edit','update']]);
+        // $this->middleware('permission:show-user', ['only' => ['show']]);
+        // $this->middleware('permission:create-user', ['only' => ['store']]);
+        // $this->middleware('permission:update-user', ['only' => ['update']]);
         // $this->middleware('permission:delete-user', ['only' => ['destroy']]);
     }
 
